@@ -35,6 +35,8 @@ if(autoFind)
 else
     [s,im_h] = findWells(img_bf,autoFind,positionDetails.wellSize,positionDetails.overlap);
 end
-print(im_h, '-djpeg', imgFile, '-r 600');
-close(im_h);
+if (~isempty(im_h))
+	print(im_h, '-djpeg', imgFile, '-r 600');
+	close(im_h);
+end
 saveTable(s,wellsFile);

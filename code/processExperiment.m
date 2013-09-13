@@ -288,6 +288,11 @@ experimentDetails.operations = {...
     'makePlots', ...
     'makePixelPlots'
 };
+for i=1:length(experimentDetails.runDirs)
+	experimentDetails.runDir = experimentDetails.runDirs{i};
+	processPositionsParallel(experimentDetails);
+end
+%{
 for j=1:length(experimentDetails.operations)
     experimentDetails.(experimentDetails.operations{j}) = 0;
 end
@@ -302,5 +307,4 @@ for i=1:length(experimentDetails.runDirs)
         experimentDetails.(experimentDetails.operations{j}) = 0;
     end
 end
-
-
+%}

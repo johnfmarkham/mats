@@ -1,3 +1,4 @@
+% this script is obsolete, will be removed
 function processPositions(experimentDetails)
 
 % dir = './';
