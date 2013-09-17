@@ -102,6 +102,7 @@ else
     % Returns an images-shaped array of floats which can be used to multiply
     % and correct matching images
     correction = (max(max(img_correct))-noise) ./ (img_correct - noise);
+	correction = max(correction(:)) - correction + 1;
 end
     
 %------------------------------------
