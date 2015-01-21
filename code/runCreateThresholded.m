@@ -133,7 +133,7 @@ experimentDetails.cameraMeanBlackLevel = uint16(32); % the DC component that com
 % 'minmax' - stretch so that minimum and maximum pixel values go between 0 and 65535
 % 'median' - set the median pixel equal to brightnessCorrectionMedian
 % a number (eg 65535) - multiply normalised pixel value [0-1] by this value
-experimentDetails.doBrightnessCorrection = 0; % if==0, then don't do correction, 1==Frame (tile correction), 2==File (pre-made)
+experimentDetails.doBrightnessCorrection = 0; % if==0, then don't do correction, 1==Frame (tile correction), 2==File (pre-made), 3==Rolling Ball
 experimentDetails.brightnessCorrectionFrame = 1; % frame number (time point) to use (also for well detection)
 experimentDetails.brightnessCorrectionFile = '20130816_smoothed_500_%d.tif'; % OR a different file for each channel (if you have %d in the name)
 experimentDetails.tileCorrection = 0; % if==1 then do tiles based on wells, otherwise fit quadratic

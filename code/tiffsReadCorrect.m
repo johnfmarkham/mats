@@ -122,6 +122,15 @@ end
 
 for i=1:channels
     log_fprintf(positionDetails,'Remapping %s\n',files{i}.name);
+	if ((doBrightnessCorrection == 3) && (i < 3))
+		% rolling ball filter
+		imgOrig = double(img16(:,:,i));
+		img = imtophat(imgOrig, strel('disk', 70));
+		img16(:,:,i) = uint16(img);
+		%figure; imshow(mat2gray(imgOrig));
+		%figure; imshow(mat2gray(img));
+		fprintf('turn me off!\n');
+	end
     % Pre-compute the sorted image for later use
     img16sort(:,i) = sort(reshape(img16(:,:,i),pixels,1));
     max_pixel = max(img16sort(end,i));
