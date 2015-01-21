@@ -1,3 +1,4 @@
+% deprecated, use [runCreateThresholded] or [runCreateUnthresh] instead
 function processExperiment()
 % This is where all the experiment-specific parameters are set.
 
