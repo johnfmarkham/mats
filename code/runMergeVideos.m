@@ -1,16 +1,22 @@
 % this is a temporary solution
 % this concatenates different runs
 % for the same position into a single movie
-inPath = 'D:\experiments\20130823_Blimp_B_drugs/unthresholded/';
+clear vars; close all; clc;
+inPath = 'D:\experiments\20130823_Blimp_B_drugs\unthresholded\';
 ffmpeg = 'C:\ffmpeg-20130520-git-5a65fea-win64-static\bin\ffmpeg.exe';
 
-nThreads = 7;
-refRun = '20130823-0023';
+nThreads = 8;
+refRun = '20130823-0023'; % takes well edges from here
+
 aviSuffix = {'', '_1', '_2', '_3'};
 nSuff = numel(aviSuffix);
 
 listing = dir(fullfile(inPath, sprintf('%s*).avi', refRun)));
-listing = prunePositionsList(listing, [4:8, 65:70, 129:133, 193:197]);
+%listing = prunePositionsList(listing, [1:10, 65:75, 129:139, 193:203]);
+%listing = prunePositionsList(listing, [11:64, 76:100]);
+positions = [101:128, 140:192, 204:500];
+listing = prunePositionsList(listing, positions);
+
 n = numel(listing);
 
 matlabpool('open', nThreads);
@@ -61,6 +67,12 @@ parfor i = 1:n
 		
 		for iSuff = 1:nSuff
 			suff = aviSuffix{iSuff};
+			outFile = fullfile(inPath, sprintf('%s%s.avi', pos, suff));
+			if (exist(outFile, 'file') == 2)
+				fprintf('movie exists, skipping iteration\n');
+				continue
+			end
+			
 			listFile = fullfile(inPath, sprintf('%s%s-list.txt', pos, suff));
 			
 			subListing = dir( ...
@@ -74,7 +86,6 @@ parfor i = 1:n
 			end
 			fclose(fid);
 			
-			outFile = fullfile(inPath, sprintf('%s%s.avi', pos, suff));
 			command = sprintf('%s -f concat -i %s -c copy %s -y', ...
 				ffmpeg, listFile, outFile);
 			dos(command);
