@@ -48,8 +48,14 @@ if(experimentDetails.haveWorkerPool)
 end
 fclose(experimentDetails.logfile_fd);
 
-parfor i=1:dirs
-	processOnePosition(experimentDetails, dirList, i);
+if ((experimentDetails.threads > 1) && (numel(dirs) > 1))
+	parfor i=1:dirs
+		processOnePosition(experimentDetails, dirList, i);
+	end
+else
+	for i=1:dirs
+		processOnePosition(experimentDetails, dirList, i);
+	end
 end
 
 if(experimentDetails.haveWorkerPool)
