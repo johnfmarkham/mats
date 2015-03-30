@@ -35,7 +35,7 @@ unmixingChannels = positionDetails.unmixingChannels;
 unmixingParams = positionDetails.unmixingParams; 
 binariseChannels = positionDetails.binariseChannels; 
 individualChanelsAllStretched = positionDetails.individualChanelsAllStretched;
-isTransmission = positionDetails.isTransmission;
+needsCorrection = positionDetails.needsCorrection;
 backgroundScalingMethod = positionDetails.backgroundScalingMethod;
 backgroundCorrectionMethod = positionDetails.backgroundCorrectionMethod;
 unevenIlluminationScalingMethod = positionDetails.unevenIlluminationScalingMethod;
@@ -122,26 +122,61 @@ end
 
 for i=1:channels
     log_fprintf(positionDetails,'Remapping %s\n',files{i}.name);
-	if ((doBrightnessCorrection == 3) && (i < 3))
-		% rolling ball filter
-		imgOrig = double(img16(:,:,i));
-		img = imtophat(imgOrig, strel('disk', 70));
-		img16(:,:,i) = uint16(img);
-		%figure; imshow(mat2gray(imgOrig));
-		%figure; imshow(mat2gray(img));
-		fprintf('turn me off!\n');
-	end
     % Pre-compute the sorted image for later use
     img16sort(:,i) = sort(reshape(img16(:,:,i),pixels,1));
-    max_pixel = max(img16sort(end,i));
-    if(doBackgroundCorrection)
-            [img16(:,:,i),min_pixel,median_pixel,max_pixel,img16sort(:,i)] =...
-            applyReferenceImage(img16(:,:,i),img16sort(:,i),backGroundCorrection(:,:,i),backGroundCorrectionSorted(:,i),newMedian,backgroundScalingMethod{i},backgroundCorrectionMethod{i},proportionBackground,haveGPU);
-    end
-    if(doBrightnessCorrection && isTransmission(i)==0)
-        [img16(:,:,i),min_pixel,median_pixel,max_pixel,img16sort(:,i)] = ...
-            applyReferenceImage(img16(:,:,i),img16sort(:,i),unevenIlluminationCorrection(:,:,i),unevenIlluminationCorrectionSorted(:,i),newMedian,unevenIlluminationScalingMethod{i},unevenIlluminationCorrectionMethod{i},proportionBackground,haveGPU);
-    end
+	max_pixel = max(img16sort(end,i));
+	if(doBackgroundCorrection)
+		[img16(:,:,i),min_pixel,median_pixel,max_pixel,img16sort(:,i)] =...
+			applyReferenceImage(img16(:,:,i),img16sort(:,i),backGroundCorrection(:,:,i),backGroundCorrectionSorted(:,i),newMedian,backgroundScalingMethod{i},backgroundCorrectionMethod{i},proportionBackground,haveGPU);
+	end
+	if(doBrightnessCorrection && needsCorrection(i))
+		if (doBrightnessCorrection == 3)
+			% rolling ball
+			img = double(img16(:,:,i));
+			img_correct = imtophat(img, strel('disk', positionDetails.rbRadius));
+			
+			% rescaling
+			scalingMethod = unevenIlluminationScalingMethod{i};
+			pixels = size(img,1) * size(img,2);
+			max_uint16 = 65535; % Assumes we're going to turn them into uint16's
+			if(strcmp(scalingMethod,'median'))
+				imgsort_correct = sort(reshape(img_correct,pixels,1));
+				median_pixel = imgsort_correct(pixels/2);
+				img_correct = img_correct * (newMedian/median_pixel);
+			elseif(strcmp(scalingMethod,'minmax'))
+				minPix = min(min(img_correct));
+				maxPix = max(max(img_correct));
+				img_correct = (max_uint16/(maxPix-minPix)) * (img_correct - minPix);
+			else
+				scale = str2double(scalingMethod);
+				img_correct = scale * img_correct;
+			end
+			
+			if(max(max(img_correct)) > max_uint16)
+				% fprintf(1,'Warning: Scaling may result in loss of bright pixels\n');
+				img_correct = min(img_correct,max_uint16);
+			end
+			img_correct = uint16(round(img_correct));
+			imgsort_correct = sort(reshape(img_correct,pixels,1));
+			median_pixel = imgsort_correct(pixels/2);
+			max_pixel = imgsort_correct(end);
+			min_pixel = imgsort_correct(1);
+			
+			img16(:,:,i) = img_correct;
+			img16sort(:,i) = imgsort_correct;
+		else
+			[img16(:,:,i),min_pixel,median_pixel,max_pixel,img16sort(:,i)] ...
+				= applyReferenceImage( ...
+					img16(:,:,i), ...
+					img16sort(:,i), ...
+					unevenIlluminationCorrection(:,:,i), ...
+					unevenIlluminationCorrectionSorted(:,i), ...
+					newMedian, ...
+					unevenIlluminationScalingMethod{i}, ...
+					unevenIlluminationCorrectionMethod{i}, ...
+					proportionBackground,haveGPU);
+		end
+	end
     if(max_pixel==max_uint16)
         log_fprintf(positionDetails,'Warning: Scaling in applyReferenceImage() may have resulted in loss of bright pixels\n');
     end

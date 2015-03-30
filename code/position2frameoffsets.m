@@ -30,7 +30,7 @@ for i=firstTimePoint:timePoints
     files{i} = strcat(dir,filename);
 end
 % offsets = findOffsets(files,positionDetails.maxOffset,positionDetails.offsetResolution);
-offsets = findOffsets3(files);
+offsets = findOffsets3(files, positionDetails.useGPU, positionDetails.verbose);
 % Align frame numbers
 for i=firstTimePoint:timePoints
     offsets(i-firstTimePoint+1).frame = i;

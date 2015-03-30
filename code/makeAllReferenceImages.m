@@ -2,6 +2,11 @@ function [correction,correction_sorted] = makeAllReferenceImages(positionDetails
 % Make reference images for all channels to correct for uneven
 % illumination. Either read in pre-made ones or try and make one from one
 % image in each channel.
+if (positionDetails.doBrightnessCorrection == 3)
+	correction = NaN;
+	correction_sorted = NaN;
+	return
+end
 channels = positionDetails.channels;
 if(positionDetails.doBrightnessCorrection==0)
     correction = [];
