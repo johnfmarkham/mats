@@ -1,4 +1,4 @@
-function offsets = findOffsets3(files, debug)
+function offsets = findOffsets3(files, haveGPU, debug)
 % Given a list of image files, returns an array of coordinates that align
 % images to the first image. Uses phase correlation.
 
@@ -9,11 +9,11 @@ if nargin == 2;
     DEBUG = debug;
 end
 
-haveGPU = 0;
-if(exist('gpuDeviceCount') && (gpuDeviceCount>0))
-    g = gpuDevice;
-    haveGPU = (g.ComputeCapability > 1.3);
-end
+% haveGPU = 0;
+% if(exist('gpuDeviceCount') && (gpuDeviceCount>0))
+%     g = gpuDevice;
+%     haveGPU = (g.ComputeCapability > 1.3);
+% end
 
 numOffsets = length(files);
 
