@@ -7,7 +7,7 @@ function [s im_h] = findWells(img,autoFind,separation,overlap)
 % TODO: Return image
 % 
 im_h = [];
-debug = 1; % Set this to zero to supress graphs
+debug = 0; % Set this to zero to supress graphs
 upIsDown = 1; % matlab plotting and avisynth pixel y are opposites
 imgInfo = whos('img');
 haveColorPlanes = length(imgInfo.size)-2;
