@@ -1,1 +1,1 @@
-% TODO: make testGlobReferenceImages() into something which is called from either runCreateUnthresh or processPositions()
+% TODO: make testGlobReferenceImages() into something which is called from either runCreateUnthresh, runCreateThresholded, or processPositions()
