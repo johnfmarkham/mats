@@ -6,7 +6,7 @@ function im = globReferenceImages(experimentDetails)
 % image. Assumes that they are all 16 bit monochrome tifs
 % Also does some smoothing on the result to get rid of noise
 
-dirPattern = strcat(experimentDetails.dir,experimentDetails.dirPattern);
+dirPattern = fullfile(experimentDetails.dir, experimentDetails.dirPattern);
 dirList = dir(dirPattern);
 files = length(dirList);
 im=[];
@@ -14,7 +14,7 @@ if(files==0)
     fprintf(1,'No match for %s\n',dirPattern);
     return;
 end
-im = imread(strcat(experimentDetails.dir,dirList(1).name));
+im = imread(fullfile(experimentDetails.dir,dirList(1).name));
 im_sum = zeros(size(im));
 debug = 0;
 
@@ -24,7 +24,7 @@ for i=1:files
     if(file.isdir)
         fprintf(1,'%s is not an image file\n',file.name); 
     end
-    im = double(imread(strcat(experimentDetails.dir,file.name)));
+    im = double(imread(fullfile(experimentDetails.dir,file.name)));
     % If the reference image is getting bleached then this will correct
     newMedian = median(im(:)) - experimentDetails.dc_offset;
     if(experimentDetails.doNormalisation && i>1)
