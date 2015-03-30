@@ -1,94 +1,93 @@
+% This is where all the experiment-specific parameters are set.
 function runCreateUnthresh()
 clear variables; close all; clc;
 
-% This is where all the experiment-specific parameters are set.
-
-% TODO: make testGlobReferenceImages() into something which is called from either here or processPositions()
-%
 % --------------------------
-% General
+% Main
+% --------------------------
+experimentDetails.outputDir = 'D:/akan/20150306_JZ_Diff/processing/output/'; % path where all outputs hang off
+experimentDetails.inputDir = 'D:/akan/20150306_JZ_Diff/'; % where the experiment is
+experimentDetails.runDirs = {'20150306-0009/', '20150306-0011/', '20150306-0013/'}; % all the runs for this experiment in order
+experimentDetails.posNums = [1:999]; % look only at these positions
+
+% --------------------------
+% Technical
 % --------------------------
 experimentDetails.profile=0; % uses the profiler if non-zero
-experimentDetails.noClobber = 1; % If non-zero, do not overwrite files if the exist.
-experimentDetails.threads = 8; % number of CPUs
-experimentDetails.useGPU = 1;  % try using it if one is found
+experimentDetails.noClobber = 0; % If non-zero, do not overwrite files if the exist.
+experimentDetails.threads = 6; % number of CPUs
+experimentDetails.useGPU = 0;  % try using it if one is found
 experimentDetails.verbose = 0; % Write to screen AND logfiles
 
-% -------------------------------------------------------------------------------
-% Directory structure
-% -------------------------------------------------------------------------------
-% From:
-% experimentDir/
-%               runDir/
-%                      positionDir
-% To:
-% outputDir/
-%            aviavs/
-%                   thresholded
-%                   unthresholded
-%                   binarised
-%            offsets
-%            tiffs/
-%                 runDir/
-%                        positionDir
-%            masks/
-%                 runDir/
-%                        positionDir
-%            histsDir
-%            statsDir
-%            welledgesDir
-%            cellnumbersDir
-%            wellimagesDir
-%            welledgesDir
-%            welltiffsDir
-%            frametimesDir
-%            fuccifitsDir
-%            fuccicountsDir
-%            backgroundsDir
-%            logDir
-%            mapDir
-%            measurementsDir
-%            segmentedDir
-%            brightnessCorrectionDir
-%            annotations
-%
-experimentDetails.outputDir = 'D:/experiments/20130823_Blimp_B_drugs/'; % path where all outputs hang off
-experimentDetails.backgroundsDir = 'backgrounds/'; % backgrounds and offsets
-experimentDetails.aviavsDir = 'unthresholded/'; % movies
-experimentDetails.tiffsDir = 'correctedTiffs/'; % pre-processed tiffs
-experimentDetails.masksDir = 'masks/'; % masks of foreground area
-experimentDetails.histsDir = 'hists/'; % fluorescence histograms for debugging
-experimentDetails.statsDir = 'stats/'; % fluorescence stats for debugging
-experimentDetails.inputDir = 'M:/experiments/20130823/'; % where the experiment is
-experimentDetails.runDirs = { ...
-	'20130823-0005/', '20130823-0008/', '20130823-0009/', ...
-	'20130823-0020/', '20130823-0022/', '20130823-0023/'}; % all the runs for this experiment in order
+if (1) % internal paths (this rarely changes)
+%{
+-------------------------------------------------------------------------------
+Directory structure
+-------------------------------------------------------------------------------
+From:
+experimentDir/
+              runDir/
+                     positionDir
+To:
+outputDir/
+           aviavs/
+                  thresholded
+                  unthresholded
+                  binarised
+           offsets
+           tiffs/
+                runDir/
+                       positionDir
+           masks/
+                runDir/
+                       positionDir
+           histsDir
+           statsDir
+           welledgesDir
+           cellnumbersDir
+           wellimagesDir
+           welledgesDir
+           welltiffsDir
+           frametimesDir
+           fuccifitsDir
+           fuccicountsDir
+           backgroundsDir
+           logDir
+           mapDir
+           measurementsDir
+           segmentedDir
+           brightnessCorrectionDir
+           annotations
+%}
+	experimentDetails.backgroundsDir = 'backgrounds/'; % backgrounds and offsets
+	experimentDetails.aviavsDir = 'unthresholded/'; % movies
+	experimentDetails.tiffsDir = 'correctedTiffs/'; % pre-processed tiffs
+	experimentDetails.masksDir = 'masks/'; % masks of foreground area
+	experimentDetails.histsDir = 'hists/'; % fluorescence histograms for debugging
+	experimentDetails.statsDir = 'stats/'; % fluorescence stats for debugging
+	experimentDetails.logDir = 'log/';
+	experimentDetails.mapDir = 'map/';
+	experimentDetails.offsetsDir = 'offsets/';
+	experimentDetails.welltiffsDir = 'welltiffs/';
+	experimentDetails.fuccifitsDir = 'fuccifits/';
+	experimentDetails.fuccicountsDir = 'fuccicounts/';
+	experimentDetails.segmentedDir = 'segmented/';
+	experimentDetails.cellnumbersDir = 'cellnumbers/';
+	experimentDetails.measurementsDir = 'measurements/';
+	experimentDetails.welledgesDir = 'welledges/';
+	experimentDetails.frametimesDir = 'frametimes/';
+	experimentDetails.wellimagesDir = 'wellimages/';
+	experimentDetails.annotationsDir = 'annotations/';
+	experimentDetails.brightnessCorrectionDir = 'brightnessCorrection/';
+	experimentDetails.dirPattern = '*).tif_Files'; % how to match files containing images
+end
 
-%experimentDetails.posNums = [1:10, 65:75, 129:139, 193:203]; % look only at these positions
-%experimentDetails.posNums = [1:100]; % look only at these positions
-experimentDetails.posNums = [101:128, 140:192, 204:500]; % look only at these positions
-
-experimentDetails.dirPattern = '*).tif_Files'; % how to match files containing images
-experimentDetails.logDir = 'log/';
-experimentDetails.mapDir = 'map/';
-experimentDetails.offsetsDir = 'offsets/';
-experimentDetails.welltiffsDir = 'welltiffs/';
-experimentDetails.fuccifitsDir = 'fuccifits/';
-experimentDetails.fuccicountsDir = 'fuccicounts/';
-experimentDetails.segmentedDir = 'segmented/';
-experimentDetails.cellnumbersDir = 'cellnumbers/';
-experimentDetails.measurementsDir = 'measurements/';
-experimentDetails.welledgesDir = 'welledges/';
-experimentDetails.frametimesDir = 'frametimes/';
-experimentDetails.wellimagesDir = 'wellimages/';
-experimentDetails.annotationsDir = 'annotations/';
-experimentDetails.brightnessCorrectionDir = 'brightnessCorrection/';
 % -----------------------------------------
 % Selecting images and time points
 % -----------------------------------------
 % The time point here means the integer that odnetifies the frame nnumber in a sequence of time lapse frames.
 experimentDetails.firstTimePoint = 1; % Start at t=this number. Don't make it 0 or something may break.
-experimentDetails.timePointsLimit = 9999; % stop at this number of time points if you get there (the images may run out first)
+experimentDetails.timePointsLimit = 999; % stop at this number of time points if you get there (the images may run out first)
 experimentDetails.filenameIncrementsTime = 1; % If non-zero, then the image filename contains the time point
 experimentDetails.pattern = '_p000001t%08dz001c%02d.tif';% What is used to make the end of the image filename
 experimentDetails.tiles = 1; % if you used mosaiX to tile an area, set this to how many tiles it made. Otherwise = 1
@@ -99,7 +98,7 @@ experimentDetails.tiles = 1; % if you used mosaiX to tile an area, set this to h
 experimentDetails.channelNumbers = [1 2 3]; % What channel numbers appear in axiovision
 experimentDetails.channels = 3; % Maximum index into channelNumbers()
 experimentDetails.wellDetectionChannel = 3; % usually BF channel. This is an index into channelNumbers()
-experimentDetails.labels = {'GFP','APC','BF'}; % Should match channels. Index is same as channelNumbers()
+experimentDetails.labels = {'GFP','Red','BF'}; % Should match channels. Index is same as channelNumbers()
 
 %---------------------
 % What to measure/plot
@@ -117,26 +116,30 @@ experimentDetails.cameraMeanBlackLevel = uint16(32); % the DC component that com
 % ------------------------------------------------------------
 % Correcting for uneven illumination (normally multiplicative)
 % ------------------------------------------------------------
-% This may require pre-building an image that represents the optics for the experiment
-%
-% Method for applying correction image:
-% '0'   do nothing - for testing
-% '*' multiply
-% '/' divide
-% '+' add
-% '-' subtract, set negative pixels to zero
-% '_' subtract and set what looks like noise (the lowest proportionBackground) to zero
-% 'a' subtract but take abs of result
-% '^' subtract but square the result
-% '4' subtract but ^4 the result
-%
-% Methods of scaling the result
-% 'minmax' - stretch so that minimum and maximum pixel values go between 0 and 65535
-% 'median' - set the median pixel equal to brightnessCorrectionMedian
-% a number (eg 65535) - multiply normalised pixel value [0-1] by this value
-experimentDetails.doBrightnessCorrection = 0; % if==0, then don't do correction, 1==Frame (tile correction), 2==File (pre-made), 3==Rolling Ball
+%{
+This may require pre-building an image that represents the optics for the experiment
+
+Method for applying correction image:
+'0'   do nothing - for testing
+'*' multiply
+'/' divide
+'+' add
+'-' subtract, set negative pixels to zero
+'_' subtract and set what looks like noise (the lowest proportionBackground) to zero
+'a' subtract but take abs of result
+'^' subtract but square the result
+'4' subtract but ^4 the result
+
+Methods of scaling the result
+'minmax' - stretch so that minimum and maximum pixel values go between 0 and 65535
+'median' - set the median pixel equal to brightnessCorrectionMedian
+a number (eg 65535) - multiply normalised pixel value [0-1] by this value
+%}
+experimentDetails.doBrightnessCorrection = 3; % if==0, then don't do correction, 1==Frame (tile correction), 2==File (pre-made), 3==Rolling Ball
+experimentDetails.rbRadius = 30; % in pixels
+experimentDetails.needsCorrection = [1 0 0]; % select channels for background correction
 experimentDetails.brightnessCorrectionFrame = 1; % frame number (time point) to use (also for well detection)
-experimentDetails.brightnessCorrectionFile = '20130816_smoothed_500_%d.tif'; % OR a different file for each channel (if you have %d in the name)
+experimentDetails.brightnessCorrectionFile = '../../unevensmoothed_1_%d.tif'; % OR a different file for each channel (if you have %d in the name)
 experimentDetails.tileCorrection = 0; % if==1 then do tiles based on wells, otherwise fit quadratic
 experimentDetails.unevenIlluminationScalingMethod = {'median', 'median', 'median', 'median', 'median'};
 experimentDetails.unevenIlluminationCorrectionMethod = {'/', '/', '/', '/', '/'};
@@ -162,7 +165,7 @@ experimentDetails.backgroundScalingMethod = {'65535', '65535', '65535', '655351'
 % ----------------------------------
 % NOTE: here, threshold is some multple of peak-width at half height added
 % to the median. Determined by trial and error.
-experimentDetails.thresholds = [1.5,2,0]; % intensities to do pixel thresholding on
+experimentDetails.thresholds = [1.2,1,0]; % intensities to do pixel thresholding on
 % Stretches individual channels using your manual set thesholds (except  brightfield)
 experimentDetails.individualChanelsAllStretched = 1;
 % if autothresholding then use gradient-based histogram method to determine bright bits
@@ -173,7 +176,7 @@ experimentDetails.autothresholding = 0;
 experimentDetails.binariseChannels = 0;
 % The overlay image is built by adding to the transmission image the bright bits from the fluorescence images
 % For each well or position this is displayed with the individual channels.
-experimentDetails.stack = {1,2,3}; % What channels to put beside the overlay image
+experimentDetails.stack = {1,2}; % What channels to put beside the overlay image
 % These specify how to do the overlaying. note that the indexed are into channelNumbers()
 experimentDetails.rgb = {uint8([0 1 0]), uint8([1 0 0]), uint8([1 1 1]) }; % rgb{i} gives contributions to rgb from channel i
 experimentDetails.isTransmission = [0 0 1]; % is this transmission or fluorescent image (for background correction)
@@ -187,7 +190,6 @@ experimentDetails.scaleBarMicrons = ' 250 u '; % Length of scale bar. What gets 
 experimentDetails.scaleBarMicrons(end-1) = 181; % Replace u with $\mu$
 experimentDetails.scaleBarMicrons = ''; % Length of scale bar==0 means no scale bar
 experimentDetails.scaleBarPixels = 600; % How many pixels do those microns cover?
-
 
 % ----------------------------------
 % Finding microwell boundaries
@@ -204,7 +206,6 @@ experimentDetails.doUnmixing = 0; % if non-zero do spectral unmixing
 experimentDetails.unmixingParams = [0.015 0.2];
 % this refers to the index into channelNumbers, not axiovision #
 experimentDetails.unmixingChannels = [1 2];
-
 
 % ---------------------------------------------------
 % Preparing images for segmenting and finding objects
@@ -298,20 +299,3 @@ for i=1:length(experimentDetails.runDirs)
 	experimentDetails.runDir = experimentDetails.runDirs{i};
 	processPositionsParallel(experimentDetails);
 end
-
-%{
-for j=1:length(experimentDetails.operations)
-    experimentDetails.(experimentDetails.operations{j}) = 0;
-end
-% -------------------------------------------------------------------------------
-% Process the different runs from the microscope
-% -------------------------------------------------------------------------------
-for i=1:length(experimentDetails.runDirs)
-    experimentDetails.runDir = experimentDetails.runDirs{i};
-    for j=1:length(experimentDetails.operations)
-        experimentDetails.(experimentDetails.operations{j}) = 1;
-        processPositionsParallel(experimentDetails);
-        experimentDetails.(experimentDetails.operations{j}) = 0;
-    end
-end
-%}
