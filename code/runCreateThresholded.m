@@ -5,17 +5,17 @@ clear variables; close all; clc;
 % --------------------------
 % Main
 % --------------------------
-experimentDetails.outputDir = 'D:/akan/20150306_JZ_Diff/processing/output/'; % path where all outputs hang off
-experimentDetails.inputDir = 'D:/akan/20150306_JZ_Diff/'; % where the experiment is
+experimentDetails.outputDir = 'Z:/processing/output/'; % path where all outputs hang off
+experimentDetails.inputDir = 'Z:/'; % where the experiment is
 experimentDetails.runDirs = {'20150306-0009/', '20150306-0011/', '20150306-0013/'}; % all the runs for this experiment in order
-experimentDetails.posNums = [3 123]; % look only at these positions
+experimentDetails.posNums = 1:999; % look only at these positions
 
 % --------------------------
 % Technical
 % --------------------------
 experimentDetails.profile=0; % uses the profiler if non-zero
 experimentDetails.noClobber = 1; % If non-zero, do not overwrite files if the exist.
-experimentDetails.threads = 6; % number of CPUs
+experimentDetails.threads = 7; % number of CPUs
 experimentDetails.useGPU = 0;  % try using it if one is found
 experimentDetails.verbose = 0; % Write to screen AND logfiles
 

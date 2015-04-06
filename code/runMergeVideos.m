@@ -3,15 +3,15 @@ function runMergeVideos
 clear vars; close all; clc; fclose all;
 ctx.expName = '20150306';
 ctx.refRun = [ctx.expName, '-0013']; % takes well edges from here
-ctx.posList = [3 123];
+ctx.posList = 1:999;
 
 ctx.nThreads = 8;
-ctx.ffmpeg = 'ffmpeg.exe';
+ctx.ffmpeg = 'C:\ffmpeg-20130520-git-5a65fea-win64-static\bin\ffmpeg.exe';
 
-ctx.inPath = 'D:\akan\20150306_JZ_Diff\processing\output\thresholded\';
+ctx.inPath = 'Z:\processing\output\thresholded\';
 processInput(ctx)
 
-ctx.inPath = 'D:\akan\20150306_JZ_Diff\processing\output\unthresholded\';
+ctx.inPath = 'Z:\processing\output\unthresholded\';
 processInput(ctx)
 end
 
