@@ -1,1 +1,4 @@
-% TODO: make testGlobReferenceImages() into something which is called from either runCreateUnthresh, runCreateThresholded, or processPositions()
+Bug: Caught "std::exception" Exception message is: Message Catalog MATLAB:builtins was not loaded from the file. Please check file location, format or contents
+* presumably too many files open
+
+Refactor: make testGlobReferenceImages() into something which is called from either runCreateUnthresh, runCreateThresholded, or processPositions()
