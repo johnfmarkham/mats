@@ -176,7 +176,7 @@ experimentDetails.autothresholding = 0;
 experimentDetails.binariseChannels = 1;
 % The overlay image is built by adding to the transmission image the bright bits from the fluorescence images
 % For each well or position this is displayed with the individual channels.
-experimentDetails.stack = {1,2}; % What channels to put beside the overlay image
+experimentDetails.stack = {1,2,3}; % What channels to put beside the overlay image
 % These specify how to do the overlaying. note that the indexed are into channelNumbers()
 experimentDetails.rgb = {uint8([0 1 0]), uint8([1 0 0]), uint8([1 1 1]) }; % rgb{i} gives contributions to rgb from channel i
 experimentDetails.isTransmission = [0 0 1]; % is this transmission or fluorescent image (for background correction)
